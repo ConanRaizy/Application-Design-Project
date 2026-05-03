@@ -52,21 +52,26 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
-            when {
-                branch 'main'
-            }
-            steps {
-                echo 'Deploying to production server...'
-                sh '''
-                    . venv/bin/activate
-                    # Add deployment steps here, e.g.:
-                    # ssh user@server "cd /var/www/mapps_cars && git pull && pip install -r requirements.txt && python manage.py migrate && sudo systemctl restart gunicorn"
-                    echo "Deploy step — configure for your server."
-                '''
-            }
+       stage('Deploy') {
+    steps {
+        sshagent(credentials: ['ec2-ssh-private-key']) {
+            sh """
+                ssh -o StrictHostKeyChecking=no ubuntu@18.217.31.192 '
+                    set -e
+                    cd /home/ubuntu/pythonprojects/Application-Design-Project
+                    git pull origin main
+                    source venv/bin/activate
+                    pip install -r requirements.txt --quiet
+                    python manage.py migrate --noinput
+                    fuser -k 8000/tcp || true
+                    sleep 1
+                    nohup bash -c "source /home/ubuntu/pythonprojects/Application-Design-Project/venv/bin/activate && python manage.py runserver 0.0.0.0:8000" > /tmp/django.log 2>&1 &
+                    echo "Mapps Cars deployed!"
+                '
+            """
         }
     }
+}
 
     post {
         success {
