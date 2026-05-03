@@ -1,6 +1,5 @@
 pipeline {
     agent any
-
     environment {
         DJANGO_SETTINGS_MODULE = 'mapps_cars.settings'
         PYTHONUNBUFFERED = '1'
@@ -9,15 +8,12 @@ pipeline {
         EC2_HOST = '18.217.31.192'
         DOCKER_CREDS = 'docker-hub-credentials'
     }
-
     stages {
-
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -28,7 +24,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Run Migrations') {
             steps {
                 sh '''
@@ -37,7 +32,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Run Tests') {
             steps {
                 sh '''
@@ -46,7 +40,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Collect Static Files') {
             steps {
                 sh '''
@@ -55,7 +48,6 @@ pipeline {
                 '''
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
@@ -63,7 +55,6 @@ pipeline {
                 }
             }
         }
-
         stage('Push to Docker Hub') {
             steps {
                 script {
@@ -74,7 +65,6 @@ pipeline {
                 }
             }
         }
-
         stage('Deploy on EC2') {
             steps {
                 script {
@@ -95,7 +85,6 @@ pipeline {
             }
         }
     }
-
     post {
         success {
             echo 'Deployment Successful!'
