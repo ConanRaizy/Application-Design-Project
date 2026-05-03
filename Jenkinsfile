@@ -4,6 +4,10 @@ pipeline {
     environment {
         DJANGO_SETTINGS_MODULE = 'mapps_cars.settings'
         PYTHONUNBUFFERED = '1'
+        DOCKER_IMAGE = 'conanraizy/application_mapps_cars'
+        EC2_USER = 'ubuntu'
+        EC2_HOST = '18.217.31.192'
+        DOCKER_CREDS = 'docker-hub-credentials'
     }
 
     stages {
@@ -52,33 +56,52 @@ pipeline {
             }
         }
 
-       stage('Deploy') {
-    steps {
-        sshagent(credentials: ['ec2-ssh-private-key']) {
-            sh """
-                ssh -o StrictHostKeyChecking=no ubuntu@18.217.31.192 '
-                    set -e
-                    cd /home/ubuntu/pythonprojects/Application-Design-Project
-                    git pull origin main
-                    source venv/bin/activate
-                    pip install -r requirements.txt --quiet
-                    python manage.py migrate --noinput
-                    fuser -k 8000/tcp || true
-                    sleep 1
-                    nohup bash -c "source /home/ubuntu/pythonprojects/Application-Design-Project/venv/bin/activate && python manage.py runserver 0.0.0.0:8000" > /tmp/django.log 2>&1 &
-                    echo "Mapps Cars deployed!"
-                '
-            """
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:latest")
+                }
+            }
+        }
+
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', DOCKER_CREDS) {
+                        docker.image("${DOCKER_IMAGE}:latest").push()
+                        echo "Image pushed to Docker Hub"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy on EC2') {
+            steps {
+                script {
+                    sshagent(credentials: ['ec2-ssh-private-key']) {
+                        sh """
+                            ssh -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} '
+                                docker pull ${DOCKER_IMAGE}:latest
+                                docker ps -a -q -f name=django-container | grep -q . && docker stop django-container || true
+                                docker ps -a -q -f name=django-container | grep -q . && docker rm django-container || true
+                                docker run -d --name django-container -p 80:80 ${DOCKER_IMAGE}:latest
+                                sleep 5
+                                docker ps -a
+                                docker logs django-container || true
+                            '
+                        """
+                    }
+                }
+            }
         }
     }
-}
-    }
+
     post {
         success {
-            echo 'Pipeline passed. Mapps Cars is good to go!'
+            echo 'Deployment Successful!'
         }
         failure {
-            echo 'Pipeline failed. Check the logs above.'
+            echo 'Deployment Failed.'
         }
         always {
             cleanWs()
