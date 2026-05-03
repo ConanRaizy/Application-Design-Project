@@ -72,7 +72,7 @@ pipeline {
         }
     }
 }
-
+    }
     post {
         success {
             echo 'Pipeline passed. Mapps Cars is good to go!'
