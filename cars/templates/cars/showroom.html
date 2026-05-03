@@ -1,0 +1,102 @@
+{% extends 'cars/base.html' %}
+{% block title %}Showroom — Mapps Cars{% endblock %}
+
+{% block content %}
+<div style="padding:3rem 2.5rem; max-width:1200px; margin:0 auto;">
+
+  <!-- Header -->
+  <div style="text-align:center; margin-bottom:3rem;">
+    <div style="font-family:'Cormorant Garamond',serif; font-size:0.75rem; letter-spacing:0.3em; text-transform:uppercase; color:var(--gold); margin-bottom:0.8rem;">Our Collection</div>
+    <div style="font-family:'Cormorant Garamond',serif; font-size:3rem; font-weight:300; color:var(--white); line-height:1.1;">
+      Available <span style="color:var(--gold);">Vehicles</span>
+    </div>
+    <div style="width:60px; height:1px; background:var(--gold); margin:1.2rem auto;"></div>
+    <div style="color:var(--muted); font-size:0.88rem; max-width:500px; margin:0 auto; line-height:1.7;">
+      Every vehicle in our showroom is hand-selected, fully inspected, and presented with complete transparency.
+    </div>
+  </div>
+
+  {% if cars %}
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;">
+    {% for car in cars %}
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:6px; overflow:hidden; transition:border-color 0.2s;"
+         onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+
+      <!-- Car image placeholder -->
+      <div style="height:180px; background:linear-gradient(135deg,#111 0%,#1a1500 100%); display:flex; align-items:center; justify-content:center; position:relative; border-bottom:1px solid var(--border);">
+        <div style="font-size:4rem; opacity:0.15;">🚗</div>
+        <div style="position:absolute; top:1rem; right:1rem;">
+          <span class="status status-{{ car.status }}">{{ car.get_status_display }}</span>
+        </div>
+        <div style="position:absolute; bottom:1rem; left:1rem; font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:300; color:var(--white);">
+          {{ car.make }} <span style="color:var(--gold);">{{ car.model }}</span>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div style="padding:1.4rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+          <div style="font-family:'Cormorant Garamond',serif; font-size:1.8rem; color:var(--gold);">£{{ car.price|floatformat:0 }}</div>
+          <div style="font-size:0.8rem; color:var(--muted);">{{ car.year }}</div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:1.2rem;">
+          <div style="font-size:0.78rem; color:var(--muted);">
+            <span style="color:#555; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:2px;">Mileage</span>
+            {{ car.mileage|floatformat:0 }} mi
+          </div>
+          <div style="font-size:0.78rem; color:var(--muted);">
+            <span style="color:#555; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:2px;">Fuel</span>
+            {{ car.get_fuel_type_display }}
+          </div>
+          <div style="font-size:0.78rem; color:var(--muted);">
+            <span style="color:#555; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:2px;">Colour</span>
+            {{ car.color|default:"—" }}
+          </div>
+          <div style="font-size:0.78rem; color:var(--muted);">
+            <span style="color:#555; font-size:0.65rem; letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:2px;">Reviews</span>
+            {{ car.reviews.count }} review{{ car.reviews.count|pluralize }}
+          </div>
+        </div>
+
+        {% if car.description %}
+        <div style="font-size:0.82rem; color:#999; line-height:1.6; margin-bottom:1.2rem; border-top:1px solid var(--border); padding-top:1rem;">
+          {{ car.description|truncatewords:20 }}
+        </div>
+        {% endif %}
+
+        {% if car.status == 'available' %}
+        <a href="{% url 'review' %}" class="btn btn-gold" style="width:100%; justify-content:center;">
+          Enquire / Leave a Review →
+        </a>
+        {% else %}
+        <div class="btn btn-outline" style="width:100%; justify-content:center; cursor:default; opacity:0.5;">
+          {{ car.get_status_display }}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card" style="text-align:center; padding:4rem;">
+    <div style="font-size:3rem; margin-bottom:1rem; opacity:0.3;">🚗</div>
+    <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--muted);">No vehicles available</div>
+    <div style="color:var(--muted); font-size:0.85rem; margin-top:0.5rem;">Check back soon — new stock arrives regularly.</div>
+  </div>
+  {% endif %}
+
+  <!-- CTA -->
+  <div style="margin-top:3rem; text-align:center; padding:2.5rem; background:var(--card); border:1px solid rgba(201,168,76,0.2); border-radius:6px;">
+    <div style="font-family:'Cormorant Garamond',serif; font-size:1.6rem; color:var(--white); margin-bottom:0.5rem;">
+      Had an experience with us?
+    </div>
+    <div style="color:var(--muted); font-size:0.85rem; margin-bottom:1.5rem;">
+      We'd love to hear your feedback — every review helps us serve you better.
+    </div>
+    <a href="{% url 'review' %}" class="btn btn-gold">Submit a Review →</a>
+  </div>
+
+</div>
+{% endblock %}

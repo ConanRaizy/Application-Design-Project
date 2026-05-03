@@ -1,0 +1,141 @@
+{% extends 'cars/base.html' %}
+{% block title %}Admin Dashboard — Mapps Cars{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <a href="{% url 'admin_panel' %}" class="sidebar-link active">
+      ◈ Dashboard
+    </a>
+    <div class="sidebar-section">Database</div>
+    <a href="{% url 'manage_cars' %}" class="sidebar-link">
+      ◎ Vehicles
+    </a>
+    <a href="{% url 'manage_reviews' %}" class="sidebar-link">
+      ◉ Reviews
+    </a>
+    <div class="sidebar-section">System</div>
+    <a href="/admin/" class="sidebar-link">
+      ⊕ Django Admin
+    </a>
+    <a href="http://localhost:8080" class="sidebar-link" target="_blank">
+      ⊗ Jenkins CI/CD
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <div class="page-header">
+      <div>
+        <div class="page-title">Admin <span>Dashboard</span></div>
+        <div class="text-muted" style="font-size:0.82rem; margin-top:0.3rem;">
+          Welcome back, {{ user.get_full_name|default:user.username }} · Mapps Cars Management
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">{{ total_cars }}</div>
+        <div class="stat-label">Total Vehicles</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ available_cars }}</div>
+        <div class="stat-label">Available</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ sold_cars }}</div>
+        <div class="stat-label">Sold</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">{{ total_reviews }}</div>
+        <div class="stat-label">Reviews</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:{% if pending_reviews > 0 %}#e0a070{% else %}var(--gold){% endif %};">
+          {{ pending_reviews }}
+        </div>
+        <div class="stat-label">Pending Reviews</div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+
+      <!-- Recent Vehicles -->
+      <div class="card">
+        <div class="card-title">Recent Vehicles</div>
+        {% if recent_cars %}
+          {% for car in recent_cars %}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:0.6rem 0;border-bottom:1px solid #1a1a1a;">
+            <div>
+              <div style="font-size:0.9rem;">{{ car }}</div>
+              <div class="text-muted" style="font-size:0.78rem;">£{{ car.price|floatformat:0 }}</div>
+            </div>
+            <span class="status status-{{ car.status }}">{{ car.get_status_display }}</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-muted" style="font-size:0.85rem;">No vehicles in database yet.</div>
+        {% endif %}
+        <div class="mt-2">
+          <a href="{% url 'manage_cars' %}" class="btn btn-outline btn-sm">View All Vehicles →</a>
+        </div>
+      </div>
+
+      <!-- Recent Reviews -->
+      <div class="card">
+        <div class="card-title">Recent Reviews</div>
+        {% if recent_reviews %}
+          {% for review in recent_reviews %}
+          <div style="padding:0.6rem 0;border-bottom:1px solid #1a1a1a;">
+            <div style="display:flex;justify-content:space-between;">
+              <div style="font-size:0.88rem;font-weight:500;">{{ review.customer_name }}</div>
+              <span class="stars" style="font-size:0.8rem;">
+                {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+              </span>
+            </div>
+            <div class="text-gold" style="font-size:0.82rem;">{{ review.title }}</div>
+            <div class="text-muted" style="font-size:0.75rem;margin-top:0.2rem;">
+              {{ review.submitted_at|date:"d M Y" }}
+              {% if not review.admin_comment %}
+                · <span style="color:#e0a070;">Awaiting response</span>
+              {% else %}
+                · <span style="color:#5dba7a;">Responded</span>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-muted" style="font-size:0.85rem;">No reviews submitted yet.</div>
+        {% endif %}
+        <div class="mt-2">
+          <a href="{% url 'manage_reviews' %}" class="btn btn-outline btn-sm">View All Reviews →</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Jenkins Integration Info -->
+    <div class="card mt-3" style="border-color: rgba(201,168,76,0.3);">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <div style="width:44px;height:44px;background:#1a1500;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;">⚙</div>
+        <div>
+          <div style="font-size:0.9rem;font-weight:500;color:var(--gold);">Jenkins CI/CD Pipeline</div>
+          <div class="text-muted" style="font-size:0.82rem;">
+            Automated testing and deployment is managed via Jenkins. Access the pipeline dashboard at
+            <a href="http://localhost:8080" target="_blank" style="color:var(--gold);">localhost:8080</a>
+            to view build history, trigger deployments, or check test results.
+          </div>
+        </div>
+        <a href="http://localhost:8080" target="_blank" class="btn btn-outline btn-sm" style="flex-shrink:0;">Open Jenkins →</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+{% endblock %}

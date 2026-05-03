@@ -1,0 +1,73 @@
+{% extends 'cars/base.html' %}
+{% block title %}Submit a Review — Mapps Cars{% endblock %}
+
+{% block content %}
+<div style="min-height:calc(100vh - 65px); display:flex; align-items:flex-start; justify-content:center; padding:3rem 1.5rem;">
+  <div style="width:100%; max-width:640px;">
+
+    <div style="text-align:center; margin-bottom:2.5rem;">
+      <div style="font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-weight:300; color:var(--white);">
+        Share Your <span style="color:var(--gold);">Experience</span>
+      </div>
+      <div style="color:var(--muted); font-size:0.85rem; margin-top:0.5rem; letter-spacing:0.05em;">
+        We value every customer's feedback. Our team will review and respond.
+      </div>
+      <div style="width:60px;height:1px;background:var(--gold);margin:1.2rem auto 0;"></div>
+    </div>
+
+    <div class="card">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            {{ form.customer_name }}
+            {% if form.customer_name.errors %}<div class="form-error">{{ form.customer_name.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            {{ form.customer_email }}
+            {% if form.customer_email.errors %}<div class="form-error">{{ form.customer_email.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Vehicle (Optional)</label>
+            {{ form.car }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rating</label>
+            {{ form.rating }}
+            {% if form.rating.errors %}<div class="form-error">{{ form.rating.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Review Title</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="form-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Your Review</label>
+          {{ form.review_text }}
+          {% if form.review_text.errors %}<div class="form-error">{{ form.review_text.errors.0 }}</div>{% endif %}
+        </div>
+
+        <hr class="divider">
+
+        <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;">
+          Submit Review →
+        </button>
+
+        <div style="margin-top:1rem; font-size:0.78rem; color:var(--muted); text-align:center;">
+          Your review will be visible after admin approval.
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

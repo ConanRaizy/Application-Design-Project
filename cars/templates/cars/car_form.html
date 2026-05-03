@@ -1,0 +1,92 @@
+{% extends 'cars/base.html' %}
+{% block title %}{{ action }} Vehicle — Mapps Cars{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <a href="{% url 'admin_panel' %}" class="sidebar-link">◈ Dashboard</a>
+    <div class="sidebar-section">Database</div>
+    <a href="{% url 'manage_cars' %}" class="sidebar-link active">◎ Vehicles</a>
+    <a href="{% url 'manage_reviews' %}" class="sidebar-link">◉ Reviews</a>
+    <div class="sidebar-section">System</div>
+    <a href="/admin/" class="sidebar-link">⊕ Django Admin</a>
+    <a href="http://localhost:8080" class="sidebar-link" target="_blank">⊗ Jenkins CI/CD</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <div class="page-title">{{ action }} <span>Vehicle</span></div>
+        {% if car %}<div class="text-muted" style="font-size:0.82rem;margin-top:0.3rem;">{{ car }}</div>{% endif %}
+      </div>
+      <a href="{% url 'manage_cars' %}" class="btn btn-outline">← Back to Vehicles</a>
+    </div>
+
+    <div class="card" style="max-width:700px;">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Make</label>
+            {{ form.make }}
+            {% if form.make.errors %}<div class="form-error">{{ form.make.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Model</label>
+            {{ form.model }}
+            {% if form.model.errors %}<div class="form-error">{{ form.model.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label">Year</label>
+            {{ form.year }}
+            {% if form.year.errors %}<div class="form-error">{{ form.year.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Price (£)</label>
+            {{ form.price }}
+            {% if form.price.errors %}<div class="form-error">{{ form.price.errors.0 }}</div>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mileage</label>
+            {{ form.mileage }}
+            {% if form.mileage.errors %}<div class="form-error">{{ form.mileage.errors.0 }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Fuel Type</label>
+            {{ form.fuel_type }}
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color</label>
+            {{ form.color }}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          {{ form.description }}
+        </div>
+
+        <hr class="divider">
+
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-gold">{{ action }} Vehicle</button>
+          <a href="{% url 'manage_cars' %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}

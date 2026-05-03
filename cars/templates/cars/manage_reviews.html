@@ -1,0 +1,76 @@
+{% extends 'cars/base.html' %}
+{% block title %}Manage Reviews — Mapps Cars{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <a href="{% url 'admin_panel' %}" class="sidebar-link">◈ Dashboard</a>
+    <div class="sidebar-section">Database</div>
+    <a href="{% url 'manage_cars' %}" class="sidebar-link">◎ Vehicles</a>
+    <a href="{% url 'manage_reviews' %}" class="sidebar-link active">◉ Reviews</a>
+    <div class="sidebar-section">System</div>
+    <a href="/admin/" class="sidebar-link">⊕ Django Admin</a>
+    <a href="http://localhost:8080" class="sidebar-link" target="_blank">⊗ Jenkins CI/CD</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title">Customer <span>Reviews</span></div>
+    </div>
+
+    {% for review in reviews %}
+    <div class="review-card">
+      <div class="review-header">
+        <div>
+          <div class="review-name">{{ review.customer_name }}
+            <span class="text-muted" style="font-size:0.8rem;font-weight:300;"> · {{ review.customer_email }}</span>
+          </div>
+          <div class="text-muted" style="font-size:0.78rem;">{{ review.submitted_at|date:"d M Y, H:i" }}</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="stars">
+            {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+          </div>
+          {% if review.is_approved %}
+            <span class="status status-approved">Approved</span>
+          {% else %}
+            <span class="status status-pending">Pending</span>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if review.car %}
+        <div class="text-muted" style="font-size:0.78rem;margin-bottom:0.5rem;">
+          Vehicle: <span class="text-gold">{{ review.car }}</span>
+        </div>
+      {% endif %}
+
+      <div class="review-title">{{ review.title }}</div>
+      <div class="review-text">{{ review.review_text }}</div>
+
+      {% if review.admin_comment %}
+      <div class="admin-reply">
+        <div class="admin-reply-label">Admin Response
+          {% if review.commented_by %} — {{ review.commented_by.get_full_name|default:review.commented_by.username }}{% endif %}
+          {% if review.commented_at %} · {{ review.commented_at|date:"d M Y" }}{% endif %}
+        </div>
+        <div style="font-size:0.88rem;color:#ccc;">{{ review.admin_comment }}</div>
+      </div>
+      {% endif %}
+
+      <div class="mt-2">
+        <a href="{% url 'add_comment' review.pk %}" class="btn btn-outline btn-sm">
+          {% if review.admin_comment %}Edit Response{% else %}Add Response{% endif %}
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="card" style="text-align:center;padding:3rem;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--muted);">No reviews yet</div>
+      <div class="text-muted" style="margin-top:0.5rem;font-size:0.85rem;">Customer reviews will appear here once submitted.</div>
+    </div>
+    {% endfor %}
+  </main>
+</div>
+{% endblock %}

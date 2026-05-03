@@ -1,0 +1,70 @@
+{% extends 'cars/base.html' %}
+{% block title %}Manage Vehicles — Mapps Cars{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <a href="{% url 'admin_panel' %}" class="sidebar-link">◈ Dashboard</a>
+    <div class="sidebar-section">Database</div>
+    <a href="{% url 'manage_cars' %}" class="sidebar-link active">◎ Vehicles</a>
+    <a href="{% url 'manage_reviews' %}" class="sidebar-link">◉ Reviews</a>
+    <div class="sidebar-section">System</div>
+    <a href="/admin/" class="sidebar-link">⊕ Django Admin</a>
+    <a href="http://localhost:8080" class="sidebar-link" target="_blank">⊗ Jenkins CI/CD</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title">Vehicle <span>Database</span></div>
+      <a href="{% url 'add_car' %}" class="btn btn-gold">+ Add Vehicle</a>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Vehicle</th>
+              <th>Year</th>
+              <th>Price</th>
+              <th>Mileage</th>
+              <th>Fuel</th>
+              <th>Color</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for car in cars %}
+            <tr>
+              <td>
+                <div style="font-weight:500;">{{ car.make }} {{ car.model }}</div>
+              </td>
+              <td>{{ car.year }}</td>
+              <td class="text-gold">£{{ car.price|floatformat:0 }}</td>
+              <td>{{ car.mileage|floatformat:0 }} mi</td>
+              <td>{{ car.get_fuel_type_display }}</td>
+              <td>{{ car.color }}</td>
+              <td><span class="status status-{{ car.status }}">{{ car.get_status_display }}</span></td>
+              <td>
+                <div class="flex gap-1">
+                  <a href="{% url 'edit_car' car.pk %}" class="btn btn-outline btn-sm">Edit</a>
+                  <a href="{% url 'delete_car' car.pk %}" class="btn btn-danger btn-sm">Del</a>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="8" style="text-align:center;color:var(--muted);padding:2rem;">
+                No vehicles in the database. <a href="{% url 'add_car' %}" style="color:var(--gold);">Add one →</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

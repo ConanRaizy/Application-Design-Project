@@ -1,0 +1,26 @@
+{% extends 'cars/base.html' %}
+{% block title %}Review Submitted — Mapps Cars{% endblock %}
+
+{% block content %}
+<div style="display:flex; align-items:center; justify-content:center; min-height:calc(100vh - 65px); padding:2rem;">
+  <div style="text-align:center; max-width:480px;">
+
+    <div style="width:72px; height:72px; border:2px solid var(--gold); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 2rem;">✓</div>
+
+    <div style="font-family:'Cormorant Garamond',serif; font-size:2.4rem; font-weight:300; color:var(--white); margin-bottom:0.5rem;">
+      Thank You
+    </div>
+    <div style="width:60px; height:1px; background:var(--gold); margin:1rem auto;"></div>
+    <div style="color:var(--muted); font-size:0.9rem; line-height:1.7; margin-bottom:2rem;">
+      Your review has been received and is awaiting approval from our team.
+      We appreciate you taking the time to share your experience with Mapps Cars.
+    </div>
+
+    <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+      <a href="{% url 'showroom' %}" class="btn btn-gold">Browse Vehicles →</a>
+      <a href="{% url 'review' %}" class="btn btn-outline">Submit Another Review</a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

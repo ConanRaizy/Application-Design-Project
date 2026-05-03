@@ -1,0 +1,60 @@
+{% extends 'cars/base.html' %}
+{% block title %}Respond to Review — Mapps Cars{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="sidebar-section">Overview</div>
+    <a href="{% url 'admin_panel' %}" class="sidebar-link">◈ Dashboard</a>
+    <div class="sidebar-section">Database</div>
+    <a href="{% url 'manage_cars' %}" class="sidebar-link">◎ Vehicles</a>
+    <a href="{% url 'manage_reviews' %}" class="sidebar-link active">◉ Reviews</a>
+    <div class="sidebar-section">System</div>
+    <a href="/admin/" class="sidebar-link">⊕ Django Admin</a>
+    <a href="http://localhost:8080" class="sidebar-link" target="_blank">⊗ Jenkins CI/CD</a>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <div class="page-title">Respond to <span>Review</span></div>
+      <a href="{% url 'manage_reviews' %}" class="btn btn-outline">← Back</a>
+    </div>
+
+    <!-- Show the review -->
+    <div class="review-card" style="margin-bottom:1.5rem;">
+      <div class="review-header">
+        <div>
+          <div class="review-name">{{ review.customer_name }}</div>
+          <div class="text-muted" style="font-size:0.78rem;">{{ review.submitted_at|date:"d M Y, H:i" }}</div>
+        </div>
+        <div class="stars">
+          {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+        </div>
+      </div>
+      <div class="review-title">{{ review.title }}</div>
+      <div class="review-text">{{ review.review_text }}</div>
+    </div>
+
+    <!-- Response form -->
+    <div class="card" style="max-width:600px;">
+      <div class="card-title">Admin Response</div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          <label class="form-label">Your Response</label>
+          {{ form.admin_comment }}
+        </div>
+        <div class="form-group flex items-center gap-2">
+          {{ form.is_approved }}
+          <label class="form-label" style="margin:0;">Mark review as approved / published</label>
+        </div>
+        <hr class="divider">
+        <div class="flex gap-2">
+          <button type="submit" class="btn btn-gold">Save Response</button>
+          <a href="{% url 'manage_reviews' %}" class="btn btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+</div>
+{% endblock %}
