@@ -1,25 +1,36 @@
-FROM nginx:stable-alpine
+FROM python:3.13.3-slim as base
 
-# Copy your website files into the container
-RUN rm -rf /usr/share/nginx/html/*
-COPY index.html /usr/share/nginx/html/
-COPY sgustyle.css /usr/share/nginx/html/
-COPY sguscript.js /usr/share/nginx/html/
+ENV PYTHONUNBUFFERED 1
 
-# Optional images/assets
-#COPY grenada.jpeg /usr/share/nginx/html/
-COPY grenada-updated.jpeg /usr/share/nginx/html/
+# Install system dependencies including nginx
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    build-essential \
+    nginx \
+    && rm -rf /var/lib/apt/lists/*
 
-# Use to copy the entire folder
-#COPY ./html /usr/share/nginx/html
+WORKDIR /app
 
+# Copy and install Python dependencies
+COPY requirements.txt /app/
+RUN python3 -m pip install --no-cache-dir -r requirements.txt
+RUN python3 -m pip install gunicorn
+
+# Copy entire project from GitHub (Jenkins clones it first)
+COPY . /app/
+
+# Run Django setup
+RUN python manage.py migrate
+RUN python manage.py collectstatic --noinput
+
+# Set Django settings module
+ENV DJANGO_SETTINGS_MODULE=mapps_cars.settings
+
+# Copy nginx config
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Copy custom Nginx config (optional)
-# COPY ./nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start Gunicorn and Nginx together
+CMD sh -c "gunicorn --chdir /app mapps_cars.wsgi:application --bind 127.0.0.1:8000 & nginx -g 'daemon off;'"
